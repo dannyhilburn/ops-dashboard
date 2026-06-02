@@ -1,122 +1,682 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPS Dashboard</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; padding: 16px; }
-h1 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
-.subtitle { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
-.grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 14px; }
-@media(min-width:600px){ .grid { grid-template-columns: repeat(4,1fr); } }
-.metric { background:#fff; border-radius:8px; padding:14px; border:1px solid #e2e8f0; }
-.metric-label { font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
-.metric-value { font-size:26px; font-weight:700; }
-.metric-sub { font-size:10px; color:#22c55e; margin-top:2px; }
-.panels { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:10px; }
-@media(min-width:600px){ .panels { grid-template-columns:1fr 1fr; } }
-.panel,.panel-full { background:#fff; border-radius:8px; padding:14px; border:1px solid #e2e8f0; }
-.panel-full { margin-bottom:10px; }
-.panel h2,.panel-full h2 { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
-.inbox-item { display:flex; align-items:flex-start; gap:8px; padding:7px 0; border-bottom:1px solid #f1f5f9; }
-.inbox-item:last-child { border-bottom:none; }
-.badge { font-size:10px; padding:2px 7px; border-radius:10px; font-weight:600; white-space:nowrap; }
-.badge-red { background:#fee2e2; color:#991b1b; }
-.badge-yellow { background:#fef9c3; color:#92400e; }
-.inbox-text { font-size:12px; flex:1; color:#374151; line-height:1.4; }
-.account { margin-bottom:10px; }
-.account:last-child { margin-bottom:0; }
-.account-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-.account-name { font-size:12px; font-weight:600; }
-.account-pct { font-size:11px; color:#94a3b8; }
-.progress { height:5px; background:#f1f5f9; border-radius:3px; overflow:hidden; }
-.progress-bar { height:100%; border-radius:3px; }
-.staff-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-@media(min-width:500px){ .staff-grid { grid-template-columns:repeat(3,1fr); } }
-.staff-card { background:#f8fafc; border-radius:6px; padding:9px; border:1px solid #e2e8f0; }
-.staff-name { font-size:12px; font-weight:600; margin-bottom:2px; }
-.staff-role { font-size:10px; color:#94a3b8; margin-bottom:5px; }
-.staff-status { display:flex; align-items:center; gap:4px; font-size:11px; color:#475569; }
-.dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-.dot-green { background:#22c55e; } .dot-yellow { background:#eab308; }
-.tabs { display:flex; gap:4px; margin-bottom:10px; }
-.tab { padding:5px 14px; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; }
-.tab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
-.journal-input { width:100%; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; color:#1e293b; font-size:13px; resize:none; outline:none; margin-bottom:8px; font-family:inherit; }
-.journal-input:focus { border-color:#2563eb; }
-.btn { padding:8px 18px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:#2563eb; color:#fff; }
-.btn:disabled { background:#93c5fd; cursor:not-allowed; }
-.s-ok { font-size:12px; color:#16a34a; margin-left:10px; }
-.s-err { font-size:12px; color:#dc2626; margin-left:10px; }
-.log-entries { max-height:120px; overflow-y:auto; }
-.log-entry { padding:5px 0; border-bottom:1px solid #f1f5f9; font-size:11px; color:#64748b; }
-.log-entry:last-child { border-bottom:none; }
-.log-time { color:#94a3b8; margin-right:6px; }
-.session-note { font-size:12px; color:#475569; background:#f8fafc; border-radius:6px; padding:9px; margin-bottom:8px; line-height:1.5; }
-.wh-badge { font-size:11px; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:5px; padding:4px 10px; display:inline-block; margin-bottom:12px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPS Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #21262d;
+      --accent:    #1a6fbf;
+      --accent-hi: #2f8de4;
+      --text:      #e6edf3;
+      --muted:     #7d8590;
+      --green:     #3fb950;
+      --yellow:    #d29922;
+      --red:       #f85149;
+      --purple:    #a371f7;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 52px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: .03em;
+      color: var(--text);
+    }
+    .nav-brand span { color: var(--accent-hi); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: color .15s, background .15s;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--border); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    #refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: color .15s, border-color .15s;
+    }
+    #refresh-btn:hover { color: var(--text); border-color: var(--muted); }
+    #last-updated { font-size: 11px; color: var(--muted); }
+
+    /* ── LAYOUT ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    section { margin-bottom: 40px; }
+    section:target { scroll-margin-top: 68px; }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── METRIC CARDS ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 700px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: border-color .15s, background .15s;
+    }
+    .metric-card:hover { border-color: var(--accent); background: #1c232d; }
+    .metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+    .metric-value { font-size: 32px; font-weight: 700; line-height: 1; }
+    .metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .metric-value.green { color: var(--green); }
+    .metric-value.yellow { color: var(--yellow); }
+    .metric-value.blue { color: var(--accent-hi); }
+    .metric-value.purple { color: var(--purple); }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1c232d; }
+    td { padding: 10px 14px; vertical-align: top; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-green { background: #1a3a22; color: var(--green); }
+    .badge-gray  { background: #21262d; color: var(--muted); }
+    .badge-blue  { background: #122438; color: var(--accent-hi); }
+    .badge-purple{ background: #2a1f4a; color: var(--purple); }
+    .badge-yellow{ background: #2d2209; color: var(--yellow); }
+    .badge-red   { background: #3d1117; color: var(--red); }
+
+    /* ── INBOX ── */
+    .inbox-list { display: flex; flex-direction: column; gap: 10px; }
+    .inbox-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: opacity .3s, max-height .3s;
+    }
+    .inbox-item.resolving { opacity: .4; pointer-events: none; }
+    .inbox-meta { flex: 1; min-width: 0; }
+    .inbox-date { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .inbox-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .inbox-stat { font-size: 12px; }
+    .inbox-stat strong { color: var(--text); }
+    .inbox-flags {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      white-space: pre-wrap;
+      font-family: ui-monospace, monospace;
+      line-height: 1.5;
+    }
+    .inbox-log-file { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: ui-monospace, monospace; }
+    .resolve-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .resolve-btn:hover { color: var(--green); border-color: var(--green); background: #1a3a22; }
+    .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 32px 0; }
+
+    /* ── JOURNAL FORM ── */
+    .journal-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+    .form-group label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 7px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group select option { background: var(--surface); }
+    .form-actions { display: flex; align-items: center; gap: 12px; }
+    .submit-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .submit-btn:hover { background: var(--accent-hi); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+    #journal-status { font-size: 12px; color: var(--muted); }
+    #journal-status.ok { color: var(--green); }
+    #journal-status.err { color: var(--red); }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-hi);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-row td { color: var(--muted); font-style: italic; }
+  </style>
 </head>
 <body>
-<h1>OPS Dashboard</h1>
-<div class="subtitle" id="dd"></div>
-<div class="grid">
-<div class="metric"><div class="metric-label">Files Processed</div><div class="metric-value">169</div><div class="metric-sub">Routed to ~/OPS</div></div>
-<div class="metric"><div class="metric-label">Inbox Items</div><div class="metric-value">2</div><div class="metric-sub">Needs attention</div></div>
-<div class="metric"><div class="metric-label">Active Accounts</div><div class="metric-value">4</div><div class="metric-sub">AEO / ON / Columbia / JCB</div></div>
-<div class="metric"><div class="metric-label">Staff Tracked</div><div class="metric-value">5</div><div class="metric-sub">TPM Team</div></div>
-</div>
-<div class="panels">
-<div class="panel"><h2>Inbox</h2>
-<div class="inbox-item"><span class="badge badge-red">MANUAL</span><span class="inbox-text">Archive.zip (2.7GB) - move to OPS/_PROCESSED/Archives</span></div>
-<div class="inbox-item"><span class="badge badge-yellow">REVIEW</span><span class="inbox-text">Downloads originals still present - clear after verification</span></div>
-</div>
-<div class="panel"><h2>Active Accounts</h2>
-<div class="account"><div class="account-header"><span class="account-name">AEO</span><span class="account-pct">UAT Active</span></div><div class="progress"><div class="progress-bar" style="width:70%;background:#2563eb"></div></div></div>
-<div class="account"><div class="account-header"><span class="account-name">ON Running Brazil</span><span class="account-pct">In Flight</span></div><div class="progress"><div class="progress-bar" style="width:45%;background:#7c3aed"></div></div></div>
-<div class="account"><div class="account-header"><span class="account-name">Columbia Sportswear</span><span class="account-pct">Executing</span></div><div class="progress"><div class="progress-bar" style="width:20%;background:#0891b2"></div></div></div>
-<div class="account"><div class="account-header"><span class="account-name">JCB USA</span><span class="account-pct">Scope Discovery</span></div><div class="progress"><div class="progress-bar" style="width:10%;background:#f59e0b"></div></div></div>
-</div>
-</div>
-<div class="panel-full"><h2>Staff Tracker</h2>
-<div class="staff-grid">
-<div class="staff-card"><div class="staff-name">Alana</div><div class="staff-role">TPM</div><div class="staff-status"><div class="dot dot-green"></div>Governance lane</div></div>
-<div class="staff-card"><div class="staff-name">Bianca</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-green"></div>Initiating JCB</div></div>
-<div class="staff-card"><div class="staff-name">Rafa</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-green"></div>Closing ONBR</div></div>
-<div class="staff-card"><div class="staff-name">Adam</div><div class="staff-role">TPM</div><div class="staff-status"><div class="dot dot-green"></div>Active</div></div>
-<div class="staff-card"><div class="staff-name">Carolina</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-green"></div>Active</div></div>
-</div>
-</div>
-<div class="panel-full"><h2>Journal</h2>
-<div class="wh-badge">Syncs to Airtable OPS System via Make.com</div>
-<div class="tabs">
-<button class="tab active" onclick="setType(this,'Note')">Note</button>
-<button class="tab" onclick="setType(this,'Flag')">Flag</button>
-<button class="tab" onclick="setType(this,'Decision')">Decision</button>
-</div>
-<textarea class="journal-input" id="jb" rows="3" placeholder="Enter your journal entry..."></textarea>
-<div style="display:flex;align-items:center">
-<button class="btn" id="lb" onclick="logEntry()">Log it</button>
-<span id="ls"></span>
-</div>
-</div>
-<div class="panel-full"><h2>Session Log</h2>
-<div class="session-note"><strong>2026-06-02</strong> - OPS system live. Airtable OPS System + Make.com webhook active. JCB USA added as active account.</div>
-<div class="log-entries" id="le"><div class="log-entry"><span class="log-time">Init</span>Dashboard deployed</div></div>
-</div>
+
+<nav>
+  <span class="nav-brand">OPS <span>Dashboard</span></span>
+  <div class="nav-links">
+    <a href="#metrics">Metrics</a>
+    <a href="#accounts">Accounts</a>
+    <a href="#staff">Staff</a>
+    <a href="#inbox">Inbox</a>
+    <a href="#journal">Journal</a>
+  </div>
+  <div class="nav-right">
+    <span id="last-updated"></span>
+    <button id="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- METRICS -->
+  <section id="metrics">
+    <h2>Overview</h2>
+    <div class="metrics-grid">
+      <a class="metric-card" href="#accounts">
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-value green" id="m-active-accounts"><span class="spinner"></span></div>
+        <div class="metric-sub" id="m-active-accounts-sub"></div>
+      </a>
+      <a class="metric-card" href="#inbox">
+        <div class="metric-label">Files Processed</div>
+        <div class="metric-value blue" id="m-files"><span class="spinner"></span></div>
+        <div class="metric-sub" id="m-files-sub"></div>
+      </a>
+      <a class="metric-card" href="#staff">
+        <div class="metric-label">Staff</div>
+        <div class="metric-value purple" id="m-staff"><span class="spinner"></span></div>
+        <div class="metric-sub" id="m-staff-sub"></div>
+      </a>
+      <a class="metric-card" href="#inbox">
+        <div class="metric-label">Open Inbox Items</div>
+        <div class="metric-value yellow" id="m-inbox"><span class="spinner"></span></div>
+        <div class="metric-sub">unresolved</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ACCOUNTS -->
+  <section id="accounts">
+    <h2>Accounts</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Status</th>
+            <th>Files</th>
+            <th>Last Updated</th>
+            <th>OPS Folder</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="accounts-body">
+          <tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STAFF -->
+  <section id="staff">
+    <h2>Staff</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Last 1:1</th>
+            <th>Files on Hand</th>
+            <th>Growth Objective</th>
+          </tr>
+        </thead>
+        <tbody id="staff-body">
+          <tr class="loading-row"><td colspan="5"><span class="spinner"></span> Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INBOX -->
+  <section id="inbox">
+    <h2>Inbox Log</h2>
+    <div id="inbox-list" class="inbox-list">
+      <div class="empty-state"><span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="journal">
+    <h2>New Journal Entry</h2>
+    <form class="journal-form" onsubmit="submitJournal(event)">
+      <div class="form-row">
+        <div class="form-group" style="flex:2; min-width:200px;">
+          <label>Entry Title</label>
+          <input type="text" id="j-entry" placeholder="One-line summary" required>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="j-date" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="j-type">
+            <option value="Session Summary">Session Summary</option>
+            <option value="Decision">Decision</option>
+            <option value="Flag">Flag</option>
+            <option value="Action">Action</option>
+            <option value="Note">Note</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tags (comma-separated)</label>
+          <input type="text" id="j-tags" placeholder="OPS, AEO, Staff">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Body</label>
+        <textarea id="j-body" placeholder="Detail…"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" id="j-submit">Post Entry</button>
+        <span id="journal-status"></span>
+      </div>
+    </form>
+  </section>
+
+</main>
+
 <script>
-const WH='https://hook.us2.make.com/1xy74q35paj4l6mxn38l5j6qxw42kf4w';
-let et='Note';
-document.getElementById('dd').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-function setType(el,t){et=t;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
-async function logEntry(){
-const b=document.getElementById('jb').value.trim(),btn=document.getElementById('lb'),s=document.getElementById('ls');
-if(!b)return;btn.disabled=true;btn.textContent='Saving...';s.textContent='';
-try{await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entry:b,date:new Date().toISOString().split('T')[0],type:et,tags:et.toLowerCase(),body:b})});}catch(e){}
-s.className='s-ok';s.textContent='Saved to Airtable';
-addLog(et+': '+b.substring(0,60));document.getElementById('jb').value='';btn.disabled=false;btn.textContent='Log it';}
-function addLog(t){const el=document.getElementById('le'),ti=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),d=document.createElement('div');d.className='log-entry';d.innerHTML='<span class="log-time">'+ti+'</span>'+t;el.insertBefore(d,el.firstChild);}
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  const PAT          = 'patlJt3JEAjN2janW.4246281dbce4e9341cb99509a7151c8af818ef3917e841c35b379cceb29cfe9e';
+  const BASE         = 'appU8i0H4TsYDpUkV';
+  const WEBHOOK_URL  = 'https://hook.us2.make.com/1xy74q35paj4l6mxn38l5j6qxw42kf4w';
+
+  const TABLES = {
+    journal:  'tblnSytzKaYSF5QXG',
+    inbox:    'tbl5tbh7o5zRXaQS2',
+    staff:    'tblb7KFYa9z7VKkJZ',
+    accounts: 'tblwHj9TwHgKhx7fk',
+  };
+
+  const FIELDS = {
+    inbox: {
+      date:      'fldMD0nz2PiUQgBCK',
+      processed: 'fldLSLF3p3Uxnksl7',
+      skipped:   'fldwJpYKxl4dNbbEa',
+      flags:     'fldef1or04ahlnuA4',
+      logFile:   'fldgvVAueosO9UK8C',
+      resolved:  'fldtdlqODXFs4NhVs',
+    },
+  };
+
+  const AT_BASE = `https://api.airtable.com/v0/${BASE}`;
+  const headers = { 'Authorization': `Bearer ${PAT}`, 'Content-Type': 'application/json' };
+
+  async function atGet(table, params = '') {
+    const res = await fetch(`${AT_BASE}/${table}${params}`, { headers });
+    if (!res.ok) throw new Error(`Airtable ${res.status}`);
+    return res.json();
+  }
+
+  async function atPatch(table, recordId, fields) {
+    const res = await fetch(`${AT_BASE}/${table}/${recordId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ fields }),
+    });
+    if (!res.ok) throw new Error(`Airtable patch ${res.status}`);
+    return res.json();
+  }
+
+  async function atCreate(table, fields) {
+    const res = await fetch(`${AT_BASE}/${table}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ fields }),
+    });
+    if (!res.ok) throw new Error(`Airtable create ${res.status}`);
+    return res.json();
+  }
+
+  // ── HELPERS ─────────────────────────────────────────────────────────────────
+  function fmtDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${m}/${day}/${y}`;
+  }
+
+  function statusBadge(name) {
+    if (!name) return '<span class="badge badge-gray">—</span>';
+    const map = {
+      'Active':   'badge-green',
+      'Inactive': 'badge-gray',
+      'On Hold':  'badge-yellow',
+      'Closed':   'badge-red',
+    };
+    const cls = map[name] || 'badge-blue';
+    return `<span class="badge ${cls}">${name}</span>`;
+  }
+
+  function roleBadge(name) {
+    if (!name) return '—';
+    const map = {
+      'TPM':            'badge-blue',
+      'Sr TPM':         'badge-purple',
+      'High Potential': 'badge-yellow',
+    };
+    const cls = map[name] || 'badge-gray';
+    return `<span class="badge ${cls}">${name}</span>`;
+  }
+
+  // ── LOAD ACCOUNTS ────────────────────────────────────────────────────────────
+  async function loadAccounts() {
+    const data = await atGet(TABLES.accounts, '?sort[0][field]=Account&sort[0][direction]=asc');
+    const tbody = document.getElementById('accounts-body');
+    const records = data.records;
+
+    let activeCount = 0;
+    let rows = '';
+    for (const r of records) {
+      const f = r.fields;
+      const status = f.Status?.name || f.Status || '';
+      if (status === 'Active') activeCount++;
+      rows += `<tr>
+        <td><strong>${f.Account || '—'}</strong></td>
+        <td>${statusBadge(status)}</td>
+        <td>${f['File Count'] ?? '—'}</td>
+        <td>${fmtDate(f['Last Updated'])}</td>
+        <td style="font-size:11px;color:var(--muted);font-family:ui-monospace,monospace">${f['OPS Folder'] || '—'}</td>
+        <td style="color:var(--muted);font-size:12px;max-width:220px">${f.Notes || '—'}</td>
+      </tr>`;
+    }
+    tbody.innerHTML = rows || '<tr><td colspan="6" class="empty-state">No accounts found.</td></tr>';
+
+    document.getElementById('m-active-accounts').textContent = activeCount;
+    document.getElementById('m-active-accounts-sub').textContent = `of ${records.length} total`;
+  }
+
+  // ── LOAD STAFF ───────────────────────────────────────────────────────────────
+  async function loadStaff() {
+    const data = await atGet(TABLES.staff, '?sort[0][field]=Name&sort[0][direction]=asc');
+    const tbody = document.getElementById('staff-body');
+    const records = data.records;
+
+    let rows = '';
+    for (const r of records) {
+      const f = r.fields;
+      const role = f.Role?.name || f.Role || '';
+      rows += `<tr>
+        <td><strong>${f.Name || '—'}</strong></td>
+        <td>${roleBadge(role)}</td>
+        <td>${fmtDate(f['Last 1:1'])}</td>
+        <td>${f['Files on Hand'] ?? '—'}</td>
+        <td style="color:var(--muted);font-size:12px;max-width:240px">${f['Growth Objective'] || '—'}</td>
+      </tr>`;
+    }
+    tbody.innerHTML = rows || '<tr><td colspan="5" class="empty-state">No staff found.</td></tr>';
+
+    document.getElementById('m-staff').textContent = records.length;
+    document.getElementById('m-staff-sub').textContent = `${records.length} team member${records.length !== 1 ? 's' : ''}`;
+  }
+
+  // ── LOAD INBOX ───────────────────────────────────────────────────────────────
+  async function loadInbox() {
+    const data = await atGet(TABLES.inbox, '?sort[0][field]=Date&sort[0][direction]=desc');
+    const container = document.getElementById('inbox-list');
+    const records = data.records;
+
+    const open = records.filter(r => !r.fields[FIELDS.inbox.resolved]);
+    document.getElementById('m-inbox').textContent = open.length;
+
+    let totalProcessed = 0;
+    let totalSkipped = 0;
+    for (const r of records) {
+      totalProcessed += r.fields[FIELDS.inbox.processed] || 0;
+      totalSkipped   += r.fields[FIELDS.inbox.skipped]   || 0;
+    }
+    document.getElementById('m-files').textContent = totalProcessed.toLocaleString();
+    document.getElementById('m-files-sub').textContent = `${totalSkipped} skipped`;
+
+    if (open.length === 0) {
+      container.innerHTML = '<div class="empty-state">✓ All inbox items resolved.</div>';
+      return;
+    }
+
+    container.innerHTML = open.map(r => {
+      const f = r.fields;
+      const flags = f[FIELDS.inbox.flags] || '';
+      return `
+        <div class="inbox-item" id="inbox-${r.id}">
+          <div class="inbox-meta">
+            <div class="inbox-date">${fmtDate(f[FIELDS.inbox.date])}</div>
+            <div class="inbox-stats">
+              <div class="inbox-stat">Processed: <strong>${f[FIELDS.inbox.processed] ?? 0}</strong></div>
+              <div class="inbox-stat">Skipped: <strong>${f[FIELDS.inbox.skipped] ?? 0}</strong></div>
+            </div>
+            ${flags ? `<div class="inbox-flags">${flags}</div>` : ''}
+            ${f[FIELDS.inbox.logFile] ? `<div class="inbox-log-file">${f[FIELDS.inbox.logFile]}</div>` : ''}
+          </div>
+          <button class="resolve-btn" onclick="resolveInbox('${r.id}')">Mark Resolved</button>
+        </div>`;
+    }).join('');
+  }
+
+  // ── RESOLVE INBOX ITEM ───────────────────────────────────────────────────────
+  async function resolveInbox(recordId) {
+    const el = document.getElementById(`inbox-${recordId}`);
+    el.classList.add('resolving');
+    try {
+      await atPatch(TABLES.inbox, recordId, { [FIELDS.inbox.resolved]: true });
+      el.style.maxHeight = el.offsetHeight + 'px';
+      el.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height .35s ease, opacity .35s ease, padding .35s ease, margin .35s ease';
+        el.style.maxHeight = '0';
+        el.style.opacity = '0';
+        el.style.padding = '0';
+        el.style.marginBottom = '0';
+      });
+      setTimeout(() => {
+        el.remove();
+        const remaining = document.querySelectorAll('.inbox-item').length;
+        document.getElementById('m-inbox').textContent = remaining;
+        if (remaining === 0) {
+          document.getElementById('inbox-list').innerHTML = '<div class="empty-state">✓ All inbox items resolved.</div>';
+        }
+      }, 380);
+    } catch (e) {
+      el.classList.remove('resolving');
+      alert('Failed to resolve: ' + e.message);
+    }
+  }
+
+  // ── JOURNAL SUBMIT ───────────────────────────────────────────────────────────
+  async function submitJournal(e) {
+    e.preventDefault();
+    const btn = document.getElementById('j-submit');
+    const status = document.getElementById('journal-status');
+    btn.disabled = true;
+    status.textContent = 'Posting…';
+    status.className = '';
+
+    const entry = document.getElementById('j-entry').value.trim();
+    const date  = document.getElementById('j-date').value;
+    const type  = document.getElementById('j-type').value;
+    const tagsRaw = document.getElementById('j-tags').value.trim();
+    const body  = document.getElementById('j-body').value.trim();
+    const tags  = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    const payload = { entry, date, type, tags, body };
+
+    try {
+      // Post to Make webhook
+      const webhookRes = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!webhookRes.ok) throw new Error(`Webhook ${webhookRes.status}`);
+
+      // Also create Airtable record directly for immediate availability
+      const atFields = {
+        Entry: entry,
+        Date:  date,
+        Type:  type,
+        Body:  body,
+      };
+      if (tags.length) atFields.Tags = tags;
+      await atCreate(TABLES.journal, atFields);
+
+      status.textContent = '✓ Entry posted';
+      status.className = 'ok';
+      e.target.reset();
+      // Reset date to today
+      document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    } catch (err) {
+      status.textContent = '✗ ' + err.message;
+      status.className = 'err';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── LOAD ALL ─────────────────────────────────────────────────────────────────
+  async function loadAll() {
+    const btn = document.getElementById('refresh-btn');
+    btn.textContent = '↻ Refreshing…';
+    btn.disabled = true;
+    try {
+      await Promise.all([loadAccounts(), loadStaff(), loadInbox()]);
+      document.getElementById('last-updated').textContent =
+        'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      btn.textContent = '↻ Refresh';
+      btn.disabled = false;
+    }
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date as default in journal form
+    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    loadAll();
+  });
 </script>
 </body>
 </html>
