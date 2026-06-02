@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPS Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; padding: 16px; }
+h1 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.subtitle { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+.grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 14px; }
+@media(min-width:600px){ .grid { grid-template-columns: repeat(4,1fr); } }
+.metric { background:#fff; border-radius:8px; padding:14px; border:1px solid #e2e8f0; }
+.metric-label { font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.metric-value { font-size:26px; font-weight:700; }
+.metric-sub { font-size:10px; color:#22c55e; margin-top:2px; }
+.panels { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:10px; }
+@media(min-width:600px){ .panels { grid-template-columns:1fr 1fr; } }
+.panel,.panel-full { background:#fff; border-radius:8px; padding:14px; border:1px solid #e2e8f0; }
+.panel-full { margin-bottom:10px; }
+.panel h2,.panel-full h2 { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
+.inbox-item { display:flex; align-items:flex-start; gap:8px; padding:7px 0; border-bottom:1px solid #f1f5f9; }
+.inbox-item:last-child { border-bottom:none; }
+.badge { font-size:10px; padding:2px 7px; border-radius:10px; font-weight:600; white-space:nowrap; }
+.badge-red { background:#fee2e2; color:#991b1b; }
+.badge-yellow { background:#fef9c3; color:#92400e; }
+.inbox-text { font-size:12px; flex:1; color:#374151; line-height:1.4; }
+.account { margin-bottom:10px; }
+.account:last-child { margin-bottom:0; }
+.account-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.account-name { font-size:12px; font-weight:600; }
+.account-pct { font-size:11px; color:#94a3b8; }
+.progress { height:5px; background:#f1f5f9; border-radius:3px; overflow:hidden; }
+.progress-bar { height:100%; border-radius:3px; }
+.staff-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+@media(min-width:500px){ .staff-grid { grid-template-columns:repeat(3,1fr); } }
+.staff-card { background:#f8fafc; border-radius:6px; padding:9px; border:1px solid #e2e8f0; }
+.staff-name { font-size:12px; font-weight:600; margin-bottom:2px; }
+.staff-role { font-size:10px; color:#94a3b8; margin-bottom:5px; }
+.staff-status { display:flex; align-items:center; gap:4px; font-size:11px; color:#475569; }
+.dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.dot-green { background:#22c55e; } .dot-yellow { background:#eab308; }
+.tabs { display:flex; gap:4px; margin-bottom:10px; }
+.tab { padding:5px 14px; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; }
+.tab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+.journal-input { width:100%; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; color:#1e293b; font-size:13px; resize:none; outline:none; margin-bottom:8px; font-family:inherit; }
+.journal-input:focus { border-color:#2563eb; }
+.btn { padding:8px 18px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:#2563eb; color:#fff; }
+.btn:disabled { background:#93c5fd; cursor:not-allowed; }
+.s-ok { font-size:12px; color:#16a34a; margin-left:10px; }
+.s-err { font-size:12px; color:#dc2626; margin-left:10px; }
+.log-entries { max-height:120px; overflow-y:auto; }
+.log-entry { padding:5px 0; border-bottom:1px solid #f1f5f9; font-size:11px; color:#64748b; }
+.log-entry:last-child { border-bottom:none; }
+.log-time { color:#94a3b8; margin-right:6px; }
+.session-note { font-size:12px; color:#475569; background:#f8fafc; border-radius:6px; padding:9px; margin-bottom:8px; line-height:1.5; }
+.wh-badge { font-size:11px; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:5px; padding:4px 10px; display:inline-block; margin-bottom:12px; }
+</style>
+</head>
+<body>
+<h1>OPS Dashboard</h1>
+<div class="subtitle" id="dd"></div>
+<div class="grid">
+<div class="metric"><div class="metric-label">Files Processed</div><div class="metric-value">169</div><div class="metric-sub">Routed to ~/OPS</div></div>
+<div class="metric"><div class="metric-label">Inbox Items</div><div class="metric-value">2</div><div class="metric-sub">Needs attention</div></div>
+<div class="metric"><div class="metric-label">Active Accounts</div><div class="metric-value">3</div><div class="metric-sub">AEO / ON / Columbia</div></div>
+<div class="metric"><div class="metric-label">Staff Tracked</div><div class="metric-value">5</div><div class="metric-sub">TPM Team</div></div>
+</div>
+<div class="panels">
+<div class="panel"><h2>Inbox</h2>
+<div class="inbox-item"><span class="badge badge-red">MANUAL</span><span class="inbox-text">Archive.zip (2.7GB) - move to OPS/_PROCESSED/Archives</span></div>
+<div class="inbox-item"><span class="badge badge-yellow">REVIEW</span><span class="inbox-text">Downloads originals still present - clear after verification</span></div>
+</div>
+<div class="panel"><h2>Active Accounts</h2>
+<div class="account"><div class="account-header"><span class="account-name">AEO</span><span class="account-pct">UAT Active</span></div><div class="progress"><div class="progress-bar" style="width:70%;background:#2563eb"></div></div></div>
+<div class="account"><div class="account-header"><span class="account-name">ON Running Brazil</span><span class="account-pct">In Flight</span></div><div class="progress"><div class="progress-bar" style="width:45%;background:#7c3aed"></div></div></div>
+<div class="account"><div class="account-header"><span class="account-name">Columbia Sportswear</span><span class="account-pct">Planning</span></div><div class="progress"><div class="progress-bar" style="width:20%;background:#0891b2"></div></div></div>
+</div>
+</div>
+<div class="panel-full"><h2>Staff Tracker</h2>
+<div class="staff-grid">
+<div class="staff-card"><div class="staff-name">Alana</div><div class="staff-role">TPM</div><div class="staff-status"><div class="dot dot-green"></div>Governance lane</div></div>
+<div class="staff-card"><div class="staff-name">Bianca</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-green"></div>Enterprise track</div></div>
+<div class="staff-card"><div class="staff-name">Rafa</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-yellow"></div>RAID hygiene</div></div>
+<div class="staff-card"><div class="staff-name">Adam</div><div class="staff-role">TPM</div><div class="staff-status"><div class="dot dot-green"></div>Active</div></div>
+<div class="staff-card"><div class="staff-name">Carolina</div><div class="staff-role">Sr TPM</div><div class="staff-status"><div class="dot dot-green"></div>Active</div></div>
+</div>
+</div>
+<div class="panel-full"><h2>Journal</h2>
+<div class="wh-badge">Syncs to Airtable OPS System via Make.com</div>
+<div class="tabs">
+<button class="tab active" onclick="setType(this,'Note')">Note</button>
+<button class="tab" onclick="setType(this,'Flag')">Flag</button>
+<button class="tab" onclick="setType(this,'Decision')">Decision</button>
+</div>
+<textarea class="journal-input" id="jb" rows="3" placeholder="Enter your journal entry..."></textarea>
+<div style="display:flex;align-items:center">
+<button class="btn" id="lb" onclick="logEntry()">Log it</button>
+<span id="ls"></span>
+</div>
+</div>
+<div class="panel-full"><h2>Session Log</h2>
+<div class="session-note"><strong>2026-06-02</strong> - OPS system live. Airtable OPS System + Make.com webhook active.</div>
+<div class="log-entries" id="le"><div class="log-entry"><span class="log-time">Init</span>Dashboard deployed</div></div>
+</div>
+<script>
+const WH='https://hook.us2.make.com/1xy74q35paj4l6mxn38l5j6qxw42kf4w';
+let et='Note';
+document.getElementById('dd').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+function setType(el,t){et=t;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+async function logEntry(){
+const b=document.getElementById('jb').value.trim(),btn=document.getElementById('lb'),s=document.getElementById('ls');
+if(!b)return;btn.disabled=true;btn.textContent='Saving...';s.textContent='';
+try{await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entry:b,date:new Date().toISOString().split('T')[0],type:et,tags:et.toLowerCase(),body:b})});}catch(e){}
+s.className='s-ok';s.textContent='Saved to Airtable';
+addLog(et+': '+b.substring(0,60));document.getElementById('jb').value='';btn.disabled=false;btn.textContent='Log it';}
+function addLog(t){const el=document.getElementById('le'),ti=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),d=document.createElement('div');d.className='log-entry';d.innerHTML='<span class="log-time">'+ti+'</span>'+t;el.insertBefore(d,el.firstChild);}
+</script>
+</body>
+</html>
